@@ -21,9 +21,15 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
-      package: 'health',
-      protoPath: join(process.cwd(), 'grpc/proto/health.proto'),
+      package: ['health', 'auth'],
+      protoPath: [
+        join(process.cwd(), 'grpc/proto/health.proto'),
+        join(process.cwd(), 'grpc/proto/auth.proto'),
+      ],
       url: `0.0.0.0:${configService.get<number>('GRPC_PORT')}`,
+      loader: {
+        keepCase: false, // snake_case -> camelCase
+      },
     },
   });
 

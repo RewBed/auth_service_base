@@ -109,6 +109,92 @@ export class UserService {
     };
   }
 
+  async verifyAccessTokenForGrpc(accessToken: string): Promise<{
+    valid: boolean;
+    user_id: string;
+    username: string;
+    role: string;
+    message: string;
+  }> {
+    const token = accessToken.trim();
+
+    console.log(token)
+
+    if (!token) {
+      return {
+        valid: false,
+        user_id: '',
+        username: '',
+        role: '',
+        message: 'Access token is required',
+      };
+    }
+
+    let payload: AccessTokenPayload;
+    try {
+      payload = await this.jwtService.verifyAsync<AccessTokenPayload>(token, {
+        secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
+      });
+    } catch {
+      return {
+        valid: false,
+        user_id: '',
+        username: '',
+        role: '',
+        message: 'Invalid access token',
+      };
+    }
+
+    if (payload.type !== 'access' || !payload.sub) {
+      return {
+        valid: false,
+        user_id: '',
+        username: '',
+        role: '',
+        message: 'Invalid access token payload',
+      };
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        status: true,
+        deletedAt: true,
+      },
+    });
+
+    if (!user || user.deletedAt) {
+      return {
+        valid: false,
+        user_id: '',
+        username: '',
+        role: '',
+        message: 'User not found',
+      };
+    }
+
+    if (user.status !== UserStatus.ACTIVE) {
+      return {
+        valid: false,
+        user_id: user.id,
+        username: user.username,
+        role: user.role,
+        message: 'User is not active',
+      };
+    }
+
+    return {
+      valid: true,
+      user_id: user.id,
+      username: user.username,
+      role: user.role,
+      message: 'Token is valid',
+    };
+  }
+
   async changePassword(
     userId: string,
     currentPassword: string,

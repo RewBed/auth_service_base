@@ -112,6 +112,13 @@ GET http://localhost:3000/health/ready
 - URL: `localhost:50051`  
 - TLS: **OFF**
 
+**Auth gRPC verification:**
+
+- Proto file: `grpc/proto/auth.proto`
+- Package: `auth`
+- Service: `AuthService`
+- Method: `VerifyAccessToken`
+
 ---
 
 ## 9. Build & run with Docker (production)
