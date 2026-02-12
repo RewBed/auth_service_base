@@ -23,6 +23,25 @@ services:
     networks:
       - shop-net-v1
 
+  init-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${SERVICE_NAME}_init_admin
+    restart: "no"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "npx prisma migrate deploy && npm run bootstrap:admin"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+    networks:
+      - shop-net-v1
+
   app:
     build:
       context: .
@@ -37,9 +56,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      init-admin:
+        condition: service_completed_successfully
     command: >
-      sh -c "npx prisma migrate deploy && node dist/src/main.js"
+      sh -c "node dist/src/main.js"
     environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
       - VIRTUAL_HOST=${AUTO_SSL_VIRTUAL_HOST}
       - LETSENCRYPT_HOST=${AUTO_SSL_LETSENCRYPT_HOST}
       - LETSENCRYPT_EMAIL=${AUTO_SSL_LETSENCRYPT_EMAIL}

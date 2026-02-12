@@ -128,7 +128,8 @@ docker compose build --no-cache
 docker compose up -d
 ```
 
-> Service will start, apply migrations, and run NestJS + gRPC automatically.
+> During startup, `init-admin` one-shot job runs migrations and creates the bootstrap admin user from `.env` (`BOOTSTRAP_ADMIN_*`).  
+> After successful completion, the main service starts and runs NestJS + gRPC.
 
 ---
 
