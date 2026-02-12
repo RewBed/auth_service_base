@@ -152,3 +152,4 @@ docker compose up -d
 - Always make sure `DATABASE_URL` in `.env` points to the correct database.
 - gRPC port must be available locally (`50051`) for development testing.
 - For production, configure proper ports and TLS if needed.
+- For local bootstrap from source, build first: `npm run build && npm run bootstrap:admin`.
