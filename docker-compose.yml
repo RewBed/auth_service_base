@@ -21,7 +21,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - shop-net-v1
+      - auth-internal
 
   init-admin:
     build:
@@ -41,7 +41,7 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
     networks:
-      - shop-net-v1
+      - auth-internal
 
   app:
     build:
@@ -71,12 +71,16 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
+      - auth-internal
       - shop-net-v1
 
 volumes:
   postgres_data:
 
 networks:
+  auth-internal:
+    name: ${SERVICE_NAME}_internal
+    driver: bridge
   shop-net-v1:
     name: shop-net-v1
-    driver: bridge
+    external: true
