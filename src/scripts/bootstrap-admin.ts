@@ -30,7 +30,10 @@ async function bootstrap(): Promise<void> {
       where: { username },
     });
     if (existingByUsername) {
-      throw new Error(`User with username "${username}" already exists`);
+      console.log(
+        `Admin user with username "${username}" already exists, skipping bootstrap`,
+      );
+      return;
     }
 
     if (email) {
@@ -38,7 +41,10 @@ async function bootstrap(): Promise<void> {
         where: { email },
       });
       if (existingByEmail) {
-        throw new Error(`User with email "${email}" already exists`);
+        console.log(
+          `User with email "${email}" already exists, skipping bootstrap`,
+        );
+        return;
       }
     }
 
